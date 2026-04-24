@@ -14,8 +14,9 @@ import {
   X,
 } from "lucide-react";
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// No longer needed for Audit logic since we moved to Vercel Functions
+// const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+// const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 interface FlaggedTransaction {
   row: number;
@@ -151,9 +152,8 @@ export default function App() {
       const form = new FormData();
       form.append("file", file);
 
-      const resp = await fetch(`${SUPABASE_URL}/functions/v1/audit-compliance`, {
+      const resp = await fetch("/api/audit", {
         method: "POST",
-        headers: { Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
         body: form,
       });
 

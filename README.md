@@ -105,17 +105,16 @@ GEMINI_API_KEY=<your-gemini-api-key>
 
 > ⚠️ **Never commit your `.env` file.** It is already listed in `.gitignore`.
 
-### 4. Deploy the Supabase Edge Function
+### 4. Deploy to Vercel
 
-```bash
-npx supabase functions deploy audit-compliance
-```
+The audit logic is now implemented as a **Vercel Serverless Function** in `/api/audit.ts`.
 
-Set the Gemini API key as a secret for the Edge Function:
+1. **Push to GitHub**: Connect your repository to Vercel.
+2. **Add Environment Variables**: In your Vercel Project Settings, add:
+   - `GEMINI_API_KEY`: Your Google Gemini API key.
+3. **Deploy**: Vercel will automatically detect the `/api` folder and deploy the serverless function.
 
-```bash
-npx supabase secrets set GEMINI_API_KEY=<your-gemini-api-key>
-```
+> Note: The original Supabase Edge Function is still available in the `/supabase` folder but is no longer used by the frontend.
 
 ### 5. Run the Development Server
 
