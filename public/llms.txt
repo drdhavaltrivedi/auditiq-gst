@@ -1,0 +1,20 @@
+# AuditIQ — AI GST Compliance Audit Assistant
+
+AuditIQ is an AI-powered GST compliance audit tool that validates transactions, detects duplicate invoices, checks GST rates, and generates compliance reports instantly.
+
+## Core Features
+- Drag-and-drop CSV/XLSX upload.
+- Rule-based GST validation (GSTIN, Rates, Calculations, Duplicates).
+- AI compliance narrative powered by Google Gemini.
+- Real-time compliance dashboard.
+
+## Technical Stack
+- Frontend: React 18, TypeScript, Vite, Tailwind CSS.
+- Backend: Supabase Edge Functions (Deno).
+- AI: Google Gemini API.
+
+## File Structure
+- /src/App.tsx: Main application logic and UI.
+- /supabase/functions/audit-compliance/index.ts: Edge function for audit processing.
+- /README.md: Setup and usage guide.
+- /LICENSE: MIT License.

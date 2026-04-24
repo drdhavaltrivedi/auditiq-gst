@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://auditiq-gst.vercel.app/sitemap.xml
