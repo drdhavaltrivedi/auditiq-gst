@@ -116,6 +116,106 @@ function AiExplanation({ text }: { text: string }) {
   );
 }
 
+function ChatSection({ auditContext }: { auditContext: AuditResult }) {
+  const [messages, setMessages] = useState<{ role: "user" | "ai"; content: string }[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const sendMessage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+
+    const userMsg = input.trim();
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: userMsg }]);
+    setLoading(true);
+
+    try {
+      const resp = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: userMsg }].map(m => ({
+            role: m.role === "ai" ? "model" : "user",
+            content: m.content
+          })),
+          auditContext
+        }),
+      });
+
+      const data = await resp.json();
+      if (data.reply) {
+        setMessages((prev) => [...prev, { role: "ai", content: data.reply }]);
+      } else {
+        setMessages((prev) => [...prev, { role: "ai", content: "Sorry, I couldn't process that. Please try again." }]);
+      }
+    } catch (err) {
+      setMessages((prev) => [...prev, { role: "ai", content: "Network error. Please check your connection." }]);
+    } finally {
+      setLoading(false);
+      setTimeout(() => scrollRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden flex flex-col h-[500px]">
+      <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center gap-2">
+        <Sparkles size={16} className="text-blue-600" />
+        <h3 className="font-semibold text-gray-900 text-sm">Follow-up Assistant</h3>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        {messages.length === 0 && (
+          <div className="text-center py-10 text-gray-400">
+            <p className="text-sm">Ask a question about this audit...</p>
+            <p className="text-xs mt-1">e.g., "Why is row 5 flagged?" or "What are the risks of invalid GSTINs?"</p>
+          </div>
+        )}
+        {messages.map((msg, i) => (
+          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
+              msg.role === "user" 
+                ? "bg-blue-600 text-white rounded-tr-none" 
+                : "bg-gray-100 text-gray-800 rounded-tl-none border border-gray-200"
+            }`}>
+              {msg.content}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 border border-gray-200 rounded-2xl rounded-tl-none px-4 py-2 flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin text-gray-400" />
+              <span className="text-xs text-gray-500">Thinking...</span>
+            </div>
+          </div>
+        )}
+        <div ref={scrollRef} />
+      </div>
+
+      <form onSubmit={sendMessage} className="p-4 border-t border-gray-100 bg-gray-50/30">
+        <div className="relative">
+          <input
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask a follow-up question..."
+            className="w-full pl-4 pr-12 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm"
+          />
+          <button
+            type="submit"
+            disabled={!input.trim() || loading}
+            className="absolute right-2 top-1.5 bottom-1.5 px-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 text-white rounded-lg transition-colors"
+          >
+            <ChevronUp size={18} />
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 export default function App() {
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
@@ -406,10 +506,13 @@ export default function App() {
                 </div>
                 <div className="text-center">
                   <p className="font-semibold text-gray-900">All Transactions Passed</p>
-                  <p className="text-sm text-gray-500 mt-1">No compliance issues were detected in this dataset.</p>
+                  <p className="text-sm text-gray-500 mt-1">No compliance issues detected in this dataset.</p>
                 </div>
               </div>
             )}
+
+            {/* Follow-up Chat Section */}
+            <ChatSection auditContext={result} />
           </>
         )}
 
