@@ -100,6 +100,7 @@ Then fill in your values:
 ```env
 VITE_SUPABASE_URL=https://<your-project>.supabase.co
 VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
+GEMINI_API_KEY=<your-gemini-api-key>
 ```
 
 > ⚠️ **Never commit your `.env` file.** It is already listed in `.gitignore`.
@@ -110,7 +111,7 @@ VITE_SUPABASE_ANON_KEY=<your-supabase-anon-key>
 npx supabase functions deploy audit-compliance
 ```
 
-Set the Gemini API key as a secret:
+Set the Gemini API key as a secret for the Edge Function:
 
 ```bash
 npx supabase secrets set GEMINI_API_KEY=<your-gemini-api-key>
